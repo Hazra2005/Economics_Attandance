@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Attendance</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+font-family:'Poppins',sans-serif;
+background:linear-gradient(135deg,#36d1dc,#5b86e5);
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+padding:20px;
+}
+
+.container{
+width:100%;
+max-width:420px;
+background:white;
+padding:25px;
+border-radius:20px;
+box-shadow:0 15px 35px rgba(0,0,0,0.3);
+position:relative;
+}
+
+.top-bar{
+display:flex;
+justify-content:space-between;
+margin-bottom:15px;
+}
+
+.back-btn{
+background:#333;
+color:white;
+border:none;
+padding:8px 15px;
+border-radius:8px;
+cursor:pointer;
+font-size:13px;
+}
+
+h2{
+text-align:center;
+margin-bottom:15px;
+}
+
+select,input,button{
+width:100%;
+padding:12px;
+margin-bottom:12px;
+border-radius:10px;
+border:1px solid #ddd;
+}
+
+button{
+background:#5b86e5;
+color:white;
+border:none;
+font-weight:600;
+cursor:pointer;
+}
+
+.result{
+margin-top:10px;
+padding:12px;
+background:#f4f4f4;
+border-radius:10px;
+font-size:14px;
+}
+
+.low{color:red;font-weight:bold;}
+.good{color:green;font-weight:bold;}
+
+/* Loader */
+.loader{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(255,255,255,0.8);
+display:flex;
+justify-content:center;
+align-items:center;
+border-radius:20px;
+display:none;
+z-index:10;
+}
+
+.spinner{
+width:45px;
+height:45px;
+border:5px solid #ccc;
+border-top:5px solid #5b86e5;
+border-radius:50%;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="loader" id="loader">
+<div class="spinner"></div>
+</div>
+
+<div class="top-bar">
+<button class="back-btn" onclick="goBack()">← Back</button>
+</div>
+
+<h2>Student Attendance</h2>
+
+<select id="department">
+<option value="">Select Department👈</option>
+<option value="ComputerScience">Computer Science👩🏻‍💻</option>
+<option value="Geography">Geography🌏</option>
+</select>
+
+<input type="text" id="roll" placeholder="Enter Roll Number">
+
+<button onclick="viewAttendance()">View Attendance👀</button>
+
+<div id="result" class="result"></div>
+
+</div>
+
+<script>
+
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycby7ZK9oW8poooePZ1o2qHHEpmvcn60vVtYOTsJqEGtmzPFMTKLiT9QZP2CDF6gNJ8T4FQ/exec";
+
+function showLoader(){ document.getElementById("loader").style.display="flex"; }
+function hideLoader(){ document.getElementById("loader").style.display="none"; }
+
+function goBack(){ window.location.href="login.html"; }
+
+function viewAttendance(){
+
+let dept=document.getElementById("department").value;
+let roll=document.getElementById("roll").value;
+
+if(dept==="" || roll===""){
+alert("Fill all fields");
+return;
+}
+
+showLoader();
+
+let sheetName =
+dept==="ComputerScience"?"CS_Attendance":"Geo_Attendance";
+
+fetch(`${SCRIPT_URL}?sheet=${sheetName}`)
+.then(res=>res.json())
+.then(data=>{
+
+let total=0,present=0,absent=0,name="";
+
+for(let i=1;i<data.length;i++){
+if(data[i][1]==roll){
+total++;
+name=data[i][2];
+if(data[i][3]==="Present"){ present++; }
+else{ absent++; }
+}
+}
+
+hideLoader();
+
+if(total===0){
+document.getElementById("result").innerHTML="No records found.";
+return;
+}
+
+let percent=((present/total)*100).toFixed(2);
+let color=percent<75?"low":"good";
+
+document.getElementById("result").innerHTML=
+`<strong>Name:</strong> ${name}<br>
+<strong>Roll:</strong> ${roll}<br><br>
+<strong>Total Classes:</strong> ${total}<br>
+<strong>Present:</strong> ${present}<br>
+<strong>Absent:</strong> ${absent}<br><br>
+<strong>Attendance %:</strong> 
+<span class="${color}">${percent}%</span>`;
+});
+}
+
+</script>
+
+</body>
+</html>

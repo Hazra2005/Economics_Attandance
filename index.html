@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attendance System Login</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Poppins',sans-serif;
+background:linear-gradient(135deg,#4e73df,#1cc88a);
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+padding:20px;
+}
+
+.container{
+width:100%;
+max-width:400px;
+}
+
+.title-box{
+background:white;
+padding:20px;
+border-radius:20px;
+text-align:center;
+margin-bottom:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+.title-box h1{
+font-size:22px;
+color:#4e73df;
+font-weight:700;
+}
+
+.login-box{
+background:white;
+padding:25px;
+border-radius:20px;
+box-shadow:0 15px 35px rgba(0,0,0,0.3);
+}
+
+.role-buttons{
+display:flex;
+gap:10px;
+margin-bottom:20px;
+}
+
+.role-buttons button{
+flex:1;
+padding:12px;
+border-radius:12px;
+border:none;
+font-weight:600;
+cursor:pointer;
+transition:0.3s;
+}
+
+.admin-btn{
+background:#4e73df;
+color:white;
+}
+
+.student-btn{
+background:#1cc88a;
+color:white;
+}
+
+.role-buttons button:active{
+transform:scale(0.95);
+}
+
+input{
+width:100%;
+padding:12px;
+border-radius:12px;
+border:1px solid #ddd;
+font-size:14px;
+margin-bottom:15px;
+}
+
+/* Password Wrapper */
+.password-wrapper{
+position:relative;
+}
+
+.password-wrapper input{
+padding-right:60px;
+}
+
+.toggle-btn{
+position:absolute;
+right:15px;
+top:50%;
+transform:translateY(-50%);
+background:none;
+border:none;
+color:#4e73df;
+font-weight:600;
+cursor:pointer;
+font-size:13px;
+}
+
+/* Remember Me */
+.options{
+display:flex;
+align-items:center;
+margin:12px 0 20px 0;
+}
+
+.options label{
+display:inline-flex;
+align-items:center;
+gap:8px;
+white-space:nowrap;
+cursor:pointer;
+font-size:14px;
+}
+
+.options input[type="checkbox"]{
+width:16px;
+height:16px;
+margin:0;
+cursor:pointer;
+}
+
+.login-btn{
+width:100%;
+padding:12px;
+border-radius:12px;
+border:none;
+background:#4e73df;
+color:white;
+font-weight:600;
+cursor:pointer;
+}
+
+.login-btn:hover{
+background:#2e59d9;
+}
+
+.hidden{
+display:none;
+}
+
+@media(max-width:480px){
+.title-box h1{
+font-size:20px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="title-box">
+<h1>Attendance System 🙋🏻‍♂️</h1>
+</div>
+
+<div class="login-box">
+
+<div class="role-buttons">
+<button class="admin-btn" onclick="showAdmin()">Admin 👨🏻‍💻</button>
+<button class="student-btn" onclick="goStudent()">Student 🎓</button>
+</div>
+
+<div id="adminSection" class="hidden">
+
+<input type="text" id="username" placeholder="Username">
+
+<div class="password-wrapper">
+<input type="password" id="password" placeholder="Password">
+<button type="button" class="toggle-btn" onclick="togglePassword()">Show</button>
+</div>
+
+<div class="options">
+<label for="remember">
+<input type="checkbox" id="remember">
+Remember Me
+</label>
+</div>
+
+<button class="login-btn" onclick="adminLogin()">Login</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function showAdmin(){
+document.getElementById("adminSection").classList.remove("hidden");
+}
+
+function goStudent(){
+window.location.href="student.html";
+}
+
+function togglePassword(){
+let pass=document.getElementById("password");
+let btn=document.querySelector(".toggle-btn");
+
+if(pass.type==="password"){
+pass.type="text";
+btn.innerText="Hide";
+}else{
+pass.type="password";
+btn.innerText="Show";
+}
+}
+
+function adminLogin(){
+
+let user=document.getElementById("username").value;
+let pass=document.getElementById("password").value;
+let remember=document.getElementById("remember").checked;
+
+if(user==="Economics" && pass==="Eco@2026"){
+
+if(remember){
+localStorage.setItem("savedUser",user);
+localStorage.setItem("savedPass",pass);
+}else{
+localStorage.removeItem("savedUser");
+localStorage.removeItem("savedPass");
+}
+
+window.location.href="index.html";
+
+}else{
+alert("Invalid Username or Password");
+}
+}
+
+window.onload=function(){
+let savedUser=localStorage.getItem("savedUser");
+let savedPass=localStorage.getItem("savedPass");
+
+if(savedUser && savedPass){
+document.getElementById("username").value=savedUser;
+document.getElementById("password").value=savedPass;
+document.getElementById("remember").checked=true;
+document.getElementById("adminSection").classList.remove("hidden");
+}
+}
+
+</script>
+
+</body>
+</html>

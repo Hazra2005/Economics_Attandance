@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel - Attendance</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
+body{
+font-family:'Poppins',sans-serif;
+background:linear-gradient(135deg,#4e73df,#1cc88a);
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+padding:20px;
+}
+
+.container{
+width:100%;
+max-width:450px;
+background:white;
+padding:25px;
+border-radius:20px;
+box-shadow:0 15px 35px rgba(0,0,0,0.3);
+position:relative;
+}
+
+h2{
+text-align:center;
+margin-bottom:15px;
+}
+
+select,button{
+width:100%;
+padding:12px;
+margin-bottom:12px;
+border-radius:10px;
+border:1px solid #ddd;
+font-size:14px;
+}
+
+button{
+background:#4e73df;
+color:white;
+border:none;
+font-weight:600;
+cursor:pointer;
+}
+
+button:hover{
+background:#2e59d9;
+}
+
+.student{
+background:#f8f9fc;
+padding:10px;
+margin-bottom:8px;
+border-radius:8px;
+font-size:14px;
+}
+
+.student label{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+/* Logout Button */
+.logout-btn{
+background:#e74a3b;
+}
+
+.logout-btn:hover{
+background:#c0392b;
+}
+
+/* Loader */
+.loader{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(255,255,255,0.85);
+display:flex;
+justify-content:center;
+align-items:center;
+border-radius:20px;
+display:none;
+z-index:10;
+}
+
+.spinner{
+width:45px;
+height:45px;
+border:5px solid #ccc;
+border-top:5px solid #4e73df;
+border-radius:50%;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- Loader -->
+<div class="loader" id="loader">
+<div class="spinner"></div>
+</div>
+
+<h2>Admin Panel👨🏻‍</h2>
+
+<select id="department">
+<option value="">Select Department👈</option>
+<option value="ComputerScience">Computer Science🖳</option>
+<option value="Geography">Geography🌏</option>
+</select>
+
+<div id="studentList"></div>
+
+<button onclick="saveAttendance()">Submit Attendance✔</button>
+
+<!-- 🔻 Logout at Bottom -->
+<button class="logout-btn" onclick="logout()">Logout⏻</button>
+
+</div>
+
+<script>
+
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycby7ZK9oW8poooePZ1o2qHHEpmvcn60vVtYOTsJqEGtmzPFMTKLiT9QZP2CDF6gNJ8T4FQ/exec";
+
+let students=[];
+let selectedDept="";
+
+function showLoader(){
+document.getElementById("loader").style.display="flex";
+}
+
+function hideLoader(){
+document.getElementById("loader").style.display="none";
+}
+
+function logout(){
+window.location.href="login.html";
+}
+
+document.getElementById("department").addEventListener("change",function(){
+
+selectedDept=this.value;
+if(selectedDept==="") return;
+
+showLoader();
+
+fetch(`${SCRIPT_URL}?sheet=${selectedDept}`)
+.then(res=>res.json())
+.then(data=>{
+
+students=[];
+let list=document.getElementById("studentList");
+list.innerHTML="";
+
+for(let i=1;i<data.length;i++){
+
+students.push({roll:data[i][0],name:data[i][1]});
+
+list.innerHTML+=`
+<div class="student">
+<label>
+<input type="checkbox">
+${data[i][0]} - ${data[i][1]}
+</label>
+</div>`;
+}
+
+hideLoader();
+
+});
+
+});
+
+function saveAttendance(){
+
+if(selectedDept===""){
+alert("Select department first");
+return;
+}
+
+showLoader();
+
+let today=new Date().toLocaleDateString();
+let checkboxes=document.querySelectorAll(".student input");
+let sheetName=selectedDept==="ComputerScience"?"CS_Attendance":"Geo_Attendance";
+let records=[];
+
+checkboxes.forEach((box,index)=>{
+let status=box.checked?"Present":"Absent";
+records.push([today,students[index].roll,students[index].name,status]);
+});
+
+fetch(SCRIPT_URL,{
+method:"POST",
+body:JSON.stringify({sheet:sheetName,records:records})
+})
+.then(res=>res.text())
+.then(()=>{
+hideLoader();
+alert("Attendance Saved Successfully!");
+});
+
+}
+
+</script>
+
+</body>
+</html>
