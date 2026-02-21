@@ -50,6 +50,37 @@ border-radius:20px;
 box-shadow:0 15px 35px rgba(0,0,0,0.3);
 }
 
+/* Login As Animated */
+.login-as{
+text-align:center;
+font-size:15px;
+font-weight:600;
+color:#444;
+margin-bottom:15px;
+position:relative;
+display:inline-block;
+left:50%;
+transform:translateX(-50%);
+cursor:pointer;
+}
+
+.login-as::after{
+content:'';
+position:absolute;
+width:0%;
+height:3px;
+left:0;
+bottom:-5px;
+background:#4e73df;
+transition:0.4s ease;
+border-radius:10px;
+}
+
+.login-as:hover::after{
+width:100%;
+}
+
+/* Role Buttons */
 .role-buttons{
 display:flex;
 gap:10px;
@@ -76,10 +107,16 @@ background:#1cc88a;
 color:white;
 }
 
+.role-buttons button:hover{
+transform:translateY(-2px);
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
 .role-buttons button:active{
 transform:scale(0.95);
 }
 
+/* Inputs */
 input{
 width:100%;
 padding:12px;
@@ -111,7 +148,7 @@ cursor:pointer;
 font-size:13px;
 }
 
-/* Remember Me */
+/* Remember */
 .options{
 display:flex;
 align-items:center;
@@ -170,6 +207,11 @@ font-size:20px;
 </div>
 
 <div class="login-box">
+
+<!-- Login As Top -->
+<div class="login-as">
+Login As
+</div>
 
 <div class="role-buttons">
 <button class="admin-btn" onclick="showAdmin()">Admin 👨🏻‍💻</button>
@@ -261,5 +303,4 @@ document.getElementById("adminSection").classList.remove("hidden");
 </script>
 
 </body>
-
 </html>
