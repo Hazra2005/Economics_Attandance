@@ -7,11 +7,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-}
+*{box-sizing:border-box;margin:0;padding:0;}
 
 body{
 font-family:'Poppins',sans-serif;
@@ -25,7 +21,7 @@ padding:20px;
 
 .container{
 width:100%;
-max-width:450px;
+max-width:500px;
 background:white;
 padding:25px;
 border-radius:20px;
@@ -33,10 +29,7 @@ box-shadow:0 15px 35px rgba(0,0,0,0.3);
 position:relative;
 }
 
-h2{
-text-align:center;
-margin-bottom:15px;
-}
+h2{text-align:center;margin-bottom:15px;}
 
 select,button{
 width:100%;
@@ -55,9 +48,7 @@ font-weight:600;
 cursor:pointer;
 }
 
-button:hover{
-background:#2e59d9;
-}
+button:hover{background:#2e59d9;}
 
 .student{
 background:#f8f9fc;
@@ -67,22 +58,12 @@ border-radius:8px;
 font-size:14px;
 }
 
-.student label{
-display:flex;
-align-items:center;
-gap:10px;
-}
+.logout-btn{background:#e74a3b;}
+.logout-btn:hover{background:#c0392b;}
 
-/* Logout Button */
-.logout-btn{
-background:#e74a3b;
-}
+.database-btn{background:#36b9cc;}
+.database-btn:hover{background:#2c9faf;}
 
-.logout-btn:hover{
-background:#c0392b;
-}
-
-/* Loader */
 .loader{
 position:absolute;
 top:0;
@@ -111,6 +92,24 @@ animation:spin 1s linear infinite;
 0%{transform:rotate(0deg);}
 100%{transform:rotate(360deg);}
 }
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+font-size:13px;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:6px;
+text-align:center;
+}
+
+th{
+background:#4e73df;
+color:white;
+}
 </style>
 </head>
 
@@ -118,12 +117,11 @@ animation:spin 1s linear infinite;
 
 <div class="container">
 
-<!-- Loader -->
 <div class="loader" id="loader">
 <div class="spinner"></div>
 </div>
 
-<h2>Admin Panel👨🏻‍</h2>
+<h2>Admin Panel👨🏻‍💼</h2>
 
 <select id="department">
 <option value="">Select Department👈</option>
@@ -135,7 +133,10 @@ animation:spin 1s linear infinite;
 
 <button onclick="saveAttendance()">Submit Attendance✔</button>
 
-<!-- 🔻 Logout at Bottom -->
+<button class="database-btn" onclick="viewDatabase()">View Attendance Database📊</button>
+
+<div id="databaseView"></div>
+
 <button class="logout-btn" onclick="logout()">Logout❎</button>
 
 </div>
@@ -143,6 +144,7 @@ animation:spin 1s linear infinite;
 <script>
 
 const SCRIPT_URL="https://script.google.com/macros/s/AKfycby7ZK9oW8poooePZ1o2qHHEpmvcn60vVtYOTsJqEGtmzPFMTKLiT9QZP2CDF6gNJ8T4FQ/exec";
+
 
 let students=[];
 let selectedDept="";
@@ -175,9 +177,7 @@ let list=document.getElementById("studentList");
 list.innerHTML="";
 
 for(let i=1;i<data.length;i++){
-
 students.push({roll:data[i][0],name:data[i][1]});
-
 list.innerHTML+=`
 <div class="student">
 <label>
@@ -188,7 +188,6 @@ ${data[i][0]} - ${data[i][1]}
 }
 
 hideLoader();
-
 });
 
 });
@@ -221,13 +220,45 @@ body:JSON.stringify({sheet:sheetName,records:records})
 hideLoader();
 alert("Attendance Saved Successfully!");
 });
+}
+
+function viewDatabase(){
+
+if(selectedDept===""){
+alert("Select department first");
+return;
+}
+
+showLoader();
+
+let sheetName=selectedDept==="ComputerScience"?"CS_Attendance":"Geo_Attendance";
+
+fetch(`${SCRIPT_URL}?sheet=${sheetName}`)
+.then(res=>res.json())
+.then(data=>{
+
+let table="<table><tr><th>Date</th><th>Roll</th><th>Name</th><th>Status</th></tr>";
+
+for(let i=1;i<data.length;i++){
+table+=`<tr>
+<td>${data[i][0]}</td>
+<td>${data[i][1]}</td>
+<td>${data[i][2]}</td>
+<td>${data[i][3]}</td>
+</tr>`;
+}
+
+table+="</table>";
+
+document.getElementById("databaseView").innerHTML=table;
+
+hideLoader();
+
+});
 
 }
 
 </script>
 
 </body>
-
 </html>
-
-
