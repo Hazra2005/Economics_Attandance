@@ -45,10 +45,7 @@ cursor:pointer;
 font-size:13px;
 }
 
-h2{
-text-align:center;
-margin-bottom:15px;
-}
+h2{text-align:center;margin-bottom:15px;}
 
 select,input,button{
 width:100%;
@@ -77,7 +74,6 @@ font-size:14px;
 .low{color:red;font-weight:bold;}
 .good{color:green;font-weight:bold;}
 
-/* Loader */
 .loader{
 position:absolute;
 top:0;
@@ -121,17 +117,19 @@ animation:spin 1s linear infinite;
 <button class="back-btn" onclick="goBack()">← Back</button>
 </div>
 
-<h2>view your Attendance</h2>
+<h2>Student Attendance</h2>
 
 <select id="department">
-<option value="">Select Department👈</option>
-<option value="ComputerScience">Computer Science👩🏻‍💻</option>
-<option value="Geography">Geography🌏</option>
+<option value="">Select Department & Semester 👈</option>
+<option value="CS_4">Computer Science - 4th Sem 👩🏻‍💻</option>
+<option value="CS_6">Computer Science - 6th Sem 👩🏻‍💻</option>
+<option value="GEO_4">Geography - 4th Sem 🌏</option>
+<option value="GEO_6">Geography - 6th Sem 🌏</option>
 </select>
 
 <input type="text" id="roll" placeholder="Enter Roll Number">
 
-<button onclick="viewAttendance()">View Attendance👀</button>
+<button onclick="viewAttendance()">View Attendance 👀</button>
 
 <div id="result" class="result"></div>
 
@@ -139,12 +137,18 @@ animation:spin 1s linear infinite;
 
 <script>
 
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycby7ZK9oW8poooePZ1o2qHHEpmvcn60vVtYOTsJqEGtmzPFMTKLiT9QZP2CDF6gNJ8T4FQ/exec";
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyLZWOug-UBtNm9hRbPDNT7UJtYtETAF4Vq7iPV_Wnmc38D_Wyyxpy4rq-0a37T3i7pVQ/exec";
 
 function showLoader(){ document.getElementById("loader").style.display="flex"; }
 function hideLoader(){ document.getElementById("loader").style.display="none"; }
-
 function goBack(){ window.location.href="index.html"; }
+
+function getSheetName(dept){
+if(dept==="CS_4") return "CS4_Attendance";
+if(dept==="CS_6") return "CS6_Attendance";
+if(dept==="GEO_4") return "GEO4_Attendance";
+if(dept==="GEO_6") return "GEO6_Attendance";
+}
 
 function viewAttendance(){
 
@@ -158,8 +162,7 @@ return;
 
 showLoader();
 
-let sheetName =
-dept==="ComputerScience"?"CS_Attendance":"Geo_Attendance";
+let sheetName=getSheetName(dept);
 
 fetch(`${SCRIPT_URL}?sheet=${sheetName}`)
 .then(res=>res.json())
@@ -192,7 +195,7 @@ document.getElementById("result").innerHTML=
 <strong>Total Classes:</strong> ${total}<br>
 <strong>Present:</strong> ${present}<br>
 <strong>Absent:</strong> ${absent}<br><br>
-<strong>Attendance %:</strong> 
+<strong>Attendance :</strong> 
 <span class="${color}">${percent}%</span>`;
 });
 }
@@ -200,6 +203,4 @@ document.getElementById("result").innerHTML=
 </script>
 
 </body>
-
 </html>
-
