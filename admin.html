@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Attendance System</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
+
+html,body{
+height:100%;
+}
 
 body{
 font-family:'Poppins',sans-serif;
@@ -14,10 +18,10 @@ background:linear-gradient(135deg,#4e73df,#1cc88a);
 display:flex;
 justify-content:center;
 align-items:center;
-min-height:100vh;
 padding:20px;
 }
 
+/* Wrapper */
 .wrapper{
 width:100%;
 max-width:400px;
@@ -34,7 +38,7 @@ box-shadow:0 10px 25px rgba(0,0,0,0.2);
 }
 
 .title-box h1{
-font-size:22px;
+font-size:20px;
 color:#4e73df;
 }
 
@@ -49,10 +53,9 @@ box-shadow:0 15px 35px rgba(0,0,0,0.3);
 .login-box h3{
 text-align:center;
 margin-bottom:20px;
-color:#444;
 }
 
-/* Role Buttons */
+/* Buttons */
 .role-buttons{
 display:flex;
 gap:10px;
@@ -72,15 +75,13 @@ color:white;
 .admin-btn{background:#4e73df;}
 .student-btn{background:#1cc88a;}
 
-.admin-btn:hover{background:#2e59d9;}
-.student-btn:hover{background:#17a673;}
-
 input{
 width:100%;
 padding:12px;
 border-radius:12px;
 border:1px solid #ddd;
 margin-bottom:15px;
+font-size:16px; /* 🔥 important for mobile zoom fix */
 }
 
 /* Password */
@@ -105,11 +106,10 @@ font-weight:600;
 cursor:pointer;
 }
 
-/* Remember Me (Proper Left Alignment) */
+/* Remember */
 .remember{
 display:flex;
 align-items:center;
-justify-content:flex-start;
 gap:8px;
 margin:15px 0;
 font-size:14px;
@@ -119,14 +119,6 @@ font-size:14px;
 width:16px;
 height:16px;
 margin:0;
-flex-shrink:0;
-cursor:pointer;
-}
-
-.remember label{
-margin:0;
-cursor:pointer;
-user-select:none;
 }
 
 /* Login Button */
@@ -139,18 +131,19 @@ background:#4e73df;
 color:white;
 font-weight:600;
 cursor:pointer;
+font-size:16px;
 }
 
 .hidden{display:none;}
 
-/* Full Screen Loader */
+/* 🔥 FULL SCREEN LOADER (Mobile Safe) */
 .full-loader{
 position:fixed;
 top:0;
 left:0;
 width:100%;
 height:100%;
-background:rgba(255,255,255,0.9);
+background:rgba(255,255,255,0.95);
 display:none;
 justify-content:center;
 align-items:center;
@@ -159,8 +152,8 @@ z-index:9999;
 }
 
 .spinner{
-width:50px;
-height:50px;
+width:45px;
+height:45px;
 border:5px solid #ddd;
 border-top:5px solid #4e73df;
 border-radius:50%;
@@ -179,14 +172,16 @@ color:#4e73df;
 }
 
 @media(max-width:480px){
-.title-box h1{font-size:20px;}
+.wrapper{
+width:100%;
+}
 }
 </style>
 </head>
 
 <body>
 
-<!-- Full Screen Loader -->
+<!-- Loader -->
 <div class="full-loader" id="loader">
 <div class="spinner"></div>
 <div class="loading-text">Logging in...</div>
@@ -203,8 +198,8 @@ color:#4e73df;
 <h3>Login As</h3>
 
 <div class="role-buttons">
-<button class="admin-btn" onclick="showAdmin()">Admin 👨🏻‍💼</button>
-<button class="student-btn" onclick="goStudent()">Student 🎓</button>
+<button type="button" class="admin-btn" onclick="showAdmin()">Admin 👨🏻‍💼</button>
+<button type="button" class="student-btn" onclick="goStudent()">Student 🎓</button>
 </div>
 
 <div id="adminSection" class="hidden">
@@ -221,7 +216,7 @@ color:#4e73df;
 <label for="remember">Remember Me</label>
 </div>
 
-<button class="login-btn" onclick="adminLogin()">Login</button>
+<button type="button" class="login-btn" onclick="adminLogin()">Login</button>
 
 </div>
 
@@ -231,6 +226,7 @@ color:#4e73df;
 <script>
 
 const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyLZWOug-UBtNm9hRbPDNT7UJtYtETAF4Vq7iPV_Wnmc38D_Wyyxpy4rq-0a37T3i7pVQ/exec";
+
 
 function showAdmin(){
 document.getElementById("adminSection").classList.remove("hidden");
@@ -255,37 +251,23 @@ btn.innerText="Show";
 
 function adminLogin(){
 
-let user=document.getElementById("username").value;
-let pass=document.getElementById("password").value;
-let remember=document.getElementById("remember").checked;
 let loader=document.getElementById("loader");
-
 loader.style.display="flex";
 
 fetch(SCRIPT_URL,{
 method:"POST",
 body:JSON.stringify({
 action:"login",
-username:user,
-password:pass
+username:document.getElementById("username").value,
+password:document.getElementById("password").value
 })
 })
 .then(res=>res.json())
 .then(data=>{
 
 if(data.status==="success"){
-
-if(remember){
-localStorage.setItem("savedUser",user);
-localStorage.setItem("savedPass",pass);
-}else{
-localStorage.removeItem("savedUser");
-localStorage.removeItem("savedPass");
-}
-
 sessionStorage.setItem("adminLoggedIn","true");
 window.location.href="admin.html";
-
 }else{
 loader.style.display="none";
 alert("Invalid Username or Password ❌");
@@ -296,18 +278,6 @@ alert("Invalid Username or Password ❌");
 loader.style.display="none";
 alert("Connection Error ⚠");
 });
-}
-
-window.onload=function(){
-let savedUser=localStorage.getItem("savedUser");
-let savedPass=localStorage.getItem("savedPass");
-
-if(savedUser && savedPass){
-document.getElementById("username").value=savedUser;
-document.getElementById("password").value=savedPass;
-document.getElementById("remember").checked=true;
-document.getElementById("adminSection").classList.remove("hidden");
-}
 }
 
 </script>
