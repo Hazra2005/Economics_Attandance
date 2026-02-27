@@ -2,11 +2,11 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel</title>
+<title>Attendance System</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-*{box-sizing:border-box;margin:0;padding:0;}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
 
 body{
 font-family:'Poppins',sans-serif;
@@ -18,9 +18,29 @@ min-height:100vh;
 padding:20px;
 }
 
-.container{
+.wrapper{
 width:100%;
-max-width:750px;
+max-width:400px;
+}
+
+/* Title Box */
+.title-box{
+background:white;
+padding:20px;
+border-radius:20px;
+text-align:center;
+margin-bottom:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+.title-box h1{
+font-size:22px;
+color:#4e73df;
+font-weight:700;
+}
+
+/* Login Box */
+.login-box{
 background:white;
 padding:25px;
 border-radius:20px;
@@ -28,87 +48,121 @@ box-shadow:0 15px 35px rgba(0,0,0,0.3);
 position:relative;
 }
 
-h2{text-align:center;margin-bottom:15px;}
-
-select,button{
-width:100%;
-padding:12px;
-margin-bottom:12px;
-border-radius:10px;
-border:1px solid #ddd;
+.login-box h3{
+text-align:center;
+margin-bottom:20px;
+color:#444;
+font-weight:600;
 }
 
-button{
+/* Role Buttons */
+.role-buttons{
+display:flex;
+gap:10px;
+margin-bottom:20px;
+}
+
+.role-buttons button{
+flex:1;
+padding:12px;
+border-radius:12px;
+border:none;
+font-weight:600;
+cursor:pointer;
+color:white;
+}
+
+.admin-btn{background:#4e73df;}
+.student-btn{background:#1cc88a;}
+
+.admin-btn:hover{background:#2e59d9;}
+.student-btn:hover{background:#17a673;}
+
+/* Inputs */
+input{
+width:100%;
+padding:12px;
+border-radius:12px;
+border:1px solid #ddd;
+margin-bottom:15px;
+}
+
+/* Password Wrapper */
+.password-wrapper{
+position:relative;
+}
+
+.password-wrapper input{
+padding-right:60px;
+margin-bottom:0;
+}
+
+.toggle-btn{
+position:absolute;
+right:10px;
+top:50%;
+transform:translateY(-50%);
+background:none;
+border:none;
+color:#4e73df;
+font-weight:600;
+cursor:pointer;
+font-size:13px;
+}
+
+/* Remember */
+.remember{
+display:flex;
+align-items:center;
+gap:8px;
+margin:15px 0;
+font-size:14px;
+cursor:pointer;
+}
+
+.remember input{
+width:16px;
+height:16px;
+margin:0;
+cursor:pointer;
+}
+
+.remember label{
+cursor:pointer;
+user-select:none;
+}
+
+/* Login Button */
+.login-btn{
+width:100%;
+padding:12px;
+border-radius:12px;
+border:none;
 background:#4e73df;
 color:white;
 font-weight:600;
 cursor:pointer;
 }
 
-button:hover{background:#2e59d9;}
+.login-btn:hover{background:#2e59d9;}
 
-.logout-btn{background:#e74a3b;}
-.logout-btn:hover{background:#c0392b;}
+.hidden{display:none;}
 
-.database-btn{background:#36b9cc;}
-.database-btn:hover{background:#2c9faf;}
-
-table{
-width:100%;
-border-collapse:collapse;
+/* Loader */
+.loader{
+display:none;
 margin-top:15px;
-background:white;
-border-radius:12px;
-overflow:hidden;
-box-shadow:0 8px 20px rgba(0,0,0,0.1);
-}
-
-thead{
-background:linear-gradient(135deg,#4e73df,#1cc88a);
-color:white;
-}
-
-th,td{
-padding:12px;
 text-align:center;
 }
 
-tbody tr{
-border-bottom:1px solid #eee;
-}
-
-tbody tr:hover{
-background:#f8f9ff;
-}
-
-td input{
-width:18px;
-height:18px;
-accent-color:#4e73df;
-cursor:pointer;
-}
-
-.loader{
-position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(255,255,255,0.85);
-display:none;
-justify-content:center;
-align-items:center;
-border-radius:20px;
-z-index:10;
-}
-
 .spinner{
-width:45px;
-height:45px;
-border:5px solid #ccc;
-border-top:5px solid #4e73df;
+width:35px;
+height:35px;
+border:4px solid #ddd;
+border-top:4px solid #4e73df;
 border-radius:50%;
 animation:spin 1s linear infinite;
+margin:auto;
 }
 
 @keyframes spin{
@@ -120,37 +174,44 @@ animation:spin 1s linear infinite;
 
 <body>
 
-<script>
-if(sessionStorage.getItem("adminLoggedIn")!=="true"){
-alert("Unauthorized Access ❌ Please Login First");
-window.location.href="index.html";
-}
-</script>
+<div class="wrapper">
 
-<div class="container">
+<div class="title-box">
+<h1>Attendance System 📘</h1>
+</div>
+
+<div class="login-box">
+
+<h3>Login As</h3>
+
+<div class="role-buttons">
+<button class="admin-btn" onclick="showAdmin()">Admin 👨🏻‍💼</button>
+<button class="student-btn" onclick="goStudent()">Student 🎓</button>
+</div>
+
+<div id="adminSection" class="hidden">
+
+<input type="text" id="username" placeholder="Username">
+
+<div class="password-wrapper">
+<input type="password" id="password" placeholder="Password">
+<button type="button" class="toggle-btn" onclick="togglePassword()">Show</button>
+</div>
+
+<div class="remember">
+<input type="checkbox" id="remember">
+<label for="remember">Remember Me</label>
+</div>
+
+<button class="login-btn" onclick="adminLogin()">Login</button>
 
 <div class="loader" id="loader">
 <div class="spinner"></div>
 </div>
 
-<h2>Admin Panel 👨🏻‍💼</h2>
+</div>
 
-<select id="department">
-<option value="">Select Department & Semester</option>
-<option value="CS_4">Computer Science - 4th Sem</option>
-<option value="CS_6">Computer Science - 6th Sem</option>
-<option value="GEO_4">Geography - 4th Sem</option>
-<option value="GEO_6">Geography - 6th Sem</option>
-</select>
-
-<div id="studentList"></div>
-
-<button onclick="saveAttendance()">Submit Attendance ✔</button>
-<button class="database-btn" onclick="viewDatabase()">View Attendance Database 📊</button>
-
-<div id="databaseView"></div>
-
-<button class="logout-btn" onclick="logout()">Logout ❎</button>
+</div>
 
 </div>
 
@@ -158,126 +219,83 @@ window.location.href="index.html";
 
 const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyLZWOug-UBtNm9hRbPDNT7UJtYtETAF4Vq7iPV_Wnmc38D_Wyyxpy4rq-0a37T3i7pVQ/exec";
 
-let students=[];
-let selectedDept="";
-
-function showLoader(){document.getElementById("loader").style.display="flex";}
-function hideLoader(){document.getElementById("loader").style.display="none";}
-
-function logout(){
-sessionStorage.removeItem("adminLoggedIn");
-window.location.href="index.html";
+function showAdmin(){
+document.getElementById("adminSection").classList.remove("hidden");
 }
 
-document.getElementById("department").addEventListener("change",function(){
-
-selectedDept=this.value;
-if(selectedDept==="") return;
-
-showLoader();
-
-fetch(`${SCRIPT_URL}?sheet=${selectedDept}`)
-.then(res=>res.json())
-.then(data=>{
-
-students=[];
-let table=`<table>
-<thead>
-<tr>
-<th>Roll</th>
-<th>Name</th>
-<th>Present</th>
-</tr>
-</thead><tbody>`;
-
-for(let i=1;i<data.length;i++){
-students.push({roll:data[i][0],name:data[i][1]});
-table+=`<tr>
-<td>${data[i][0]}</td>
-<td>${data[i][1]}</td>
-<td><input type="checkbox"></td>
-</tr>`;
+function goStudent(){
+window.location.href="student.html";
 }
 
-table+="</tbody></table>";
+/* Show / Hide Password */
+function togglePassword(){
+let pass=document.getElementById("password");
+let btn=document.querySelector(".toggle-btn");
 
-document.getElementById("studentList").innerHTML=table;
-hideLoader();
-});
-});
-
-function getSheetName(dept){
-if(dept==="CS_4") return "CS4_Attendance";
-if(dept==="CS_6") return "CS6_Attendance";
-if(dept==="GEO_4") return "GEO4_Attendance";
-if(dept==="GEO_6") return "GEO6_Attendance";
+if(pass.type==="password"){
+pass.type="text";
+btn.innerText="Hide";
+}else{
+pass.type="password";
+btn.innerText="Show";
+}
 }
 
-function saveAttendance(){
+function adminLogin(){
 
-if(selectedDept===""){
-alert("Select department first");
-return;
-}
+let user=document.getElementById("username").value;
+let pass=document.getElementById("password").value;
+let remember=document.getElementById("remember").checked;
+let loader=document.getElementById("loader");
 
-showLoader();
-
-let today=new Date().toLocaleDateString();
-let checkboxes=document.querySelectorAll("tbody input");
-let sheetName=getSheetName(selectedDept);
-let records=[];
-
-checkboxes.forEach((box,index)=>{
-let status=box.checked?"Present":"Absent";
-records.push([today,students[index].roll,students[index].name,status]);
-});
+loader.style.display="block";
 
 fetch(SCRIPT_URL,{
 method:"POST",
 body:JSON.stringify({
-action:"saveAttendance",
-sheet:sheetName,
-records:records
+action:"login",
+username:user,
+password:pass
 })
 })
-.then(res=>res.json())
-.then(()=>{
-hideLoader();
-alert("Attendance Saved Successfully!");
-});
-}
-
-function viewDatabase(){
-
-if(selectedDept===""){
-alert("Select department first");
-return;
-}
-
-showLoader();
-
-let sheetName=getSheetName(selectedDept);
-
-fetch(`${SCRIPT_URL}?sheet=${sheetName}`)
 .then(res=>res.json())
 .then(data=>{
 
-let table="<table><thead><tr><th>Date</th><th>Roll</th><th>Name</th><th>Status</th></tr></thead><tbody>";
+if(data.status==="success"){
 
-for(let i=1;i<data.length;i++){
-table+=`<tr>
-<td>${data[i][0]}</td>
-<td>${data[i][1]}</td>
-<td>${data[i][2]}</td>
-<td>${data[i][3]}</td>
-</tr>`;
+if(remember){
+localStorage.setItem("savedUser",user);
+localStorage.setItem("savedPass",pass);
+}else{
+localStorage.removeItem("savedUser");
+localStorage.removeItem("savedPass");
 }
 
-table+="</tbody></table>";
+sessionStorage.setItem("adminLoggedIn","true");
+window.location.href="admin.html";
 
-document.getElementById("databaseView").innerHTML=table;
-hideLoader();
+}else{
+loader.style.display="none";
+alert("Invalid Username or Password ❌");
+}
+
+})
+.catch(()=>{
+loader.style.display="none";
+alert("Connection Error ⚠");
 });
+}
+
+window.onload=function(){
+let savedUser=localStorage.getItem("savedUser");
+let savedPass=localStorage.getItem("savedPass");
+
+if(savedUser && savedPass){
+document.getElementById("username").value=savedUser;
+document.getElementById("password").value=savedPass;
+document.getElementById("remember").checked=true;
+document.getElementById("adminSection").classList.remove("hidden");
+}
 }
 
 </script>
