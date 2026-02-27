@@ -2,11 +2,10 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel - Attendance</title>
+<title>Admin Panel</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-
 *{box-sizing:border-box;margin:0;padding:0;}
 
 body{
@@ -21,7 +20,7 @@ padding:20px;
 
 .container{
 width:100%;
-max-width:500px;
+max-width:750px;
 background:white;
 padding:25px;
 border-radius:20px;
@@ -37,32 +36,57 @@ padding:12px;
 margin-bottom:12px;
 border-radius:10px;
 border:1px solid #ddd;
-font-size:14px;
 }
 
 button{
 background:#4e73df;
 color:white;
-border:none;
 font-weight:600;
 cursor:pointer;
 }
 
 button:hover{background:#2e59d9;}
 
-.student{
-background:#f8f9fc;
-padding:10px;
-margin-bottom:8px;
-border-radius:8px;
-font-size:14px;
-}
-
 .logout-btn{background:#e74a3b;}
 .logout-btn:hover{background:#c0392b;}
 
 .database-btn{background:#36b9cc;}
 .database-btn:hover{background:#2c9faf;}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+background:white;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+
+thead{
+background:linear-gradient(135deg,#4e73df,#1cc88a);
+color:white;
+}
+
+th,td{
+padding:12px;
+text-align:center;
+}
+
+tbody tr{
+border-bottom:1px solid #eee;
+}
+
+tbody tr:hover{
+background:#f8f9ff;
+}
+
+td input{
+width:18px;
+height:18px;
+accent-color:#4e73df;
+cursor:pointer;
+}
 
 .loader{
 position:absolute;
@@ -71,11 +95,10 @@ left:0;
 width:100%;
 height:100%;
 background:rgba(255,255,255,0.85);
-display:flex;
+display:none;
 justify-content:center;
 align-items:center;
 border-radius:20px;
-display:none;
 z-index:10;
 }
 
@@ -92,28 +115,17 @@ animation:spin 1s linear infinite;
 0%{transform:rotate(0deg);}
 100%{transform:rotate(360deg);}
 }
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:10px;
-font-size:13px;
-}
-
-th,td{
-border:1px solid #ddd;
-padding:6px;
-text-align:center;
-}
-
-th{
-background:#4e73df;
-color:white;
-}
 </style>
 </head>
 
 <body>
+
+<script>
+if(sessionStorage.getItem("adminLoggedIn")!=="true"){
+alert("Unauthorized Access ❌ Please Login First");
+window.location.href="index.html";
+}
+</script>
 
 <div class="container">
 
@@ -121,43 +133,39 @@ color:white;
 <div class="spinner"></div>
 </div>
 
-<h2>Admin Panel👨🏻‍💼</h2>
+<h2>Admin Panel 👨🏻‍💼</h2>
 
 <select id="department">
-<option value="">Select Department👈</option>
-<option value="ComputerScience">Computer Sciences🖥️</option>
-<option value="Geography">Geography🌏</option>
+<option value="">Select Department & Semester</option>
+<option value="CS_4">Computer Science - 4th Sem</option>
+<option value="CS_6">Computer Science - 6th Sem</option>
+<option value="GEO_4">Geography - 4th Sem</option>
+<option value="GEO_6">Geography - 6th Sem</option>
 </select>
 
 <div id="studentList"></div>
 
-<button onclick="saveAttendance()">Submit Attendance✔</button>
-
-<button class="database-btn" onclick="viewDatabase()">View Attendance Database📊</button>
+<button onclick="saveAttendance()">Submit Attendance ✔</button>
+<button class="database-btn" onclick="viewDatabase()">View Attendance Database 📊</button>
 
 <div id="databaseView"></div>
 
-<button class="logout-btn" onclick="logout()">Logout❎</button>
+<button class="logout-btn" onclick="logout()">Logout ❎</button>
 
 </div>
 
 <script>
 
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycby7ZK9oW8poooePZ1o2qHHEpmvcn60vVtYOTsJqEGtmzPFMTKLiT9QZP2CDF6gNJ8T4FQ/exec";
-
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyLZWOug-UBtNm9hRbPDNT7UJtYtETAF4Vq7iPV_Wnmc38D_Wyyxpy4rq-0a37T3i7pVQ/exec";
 
 let students=[];
 let selectedDept="";
 
-function showLoader(){
-document.getElementById("loader").style.display="flex";
-}
-
-function hideLoader(){
-document.getElementById("loader").style.display="none";
-}
+function showLoader(){document.getElementById("loader").style.display="flex";}
+function hideLoader(){document.getElementById("loader").style.display="none";}
 
 function logout(){
+sessionStorage.removeItem("adminLoggedIn");
 window.location.href="index.html";
 }
 
@@ -173,24 +181,37 @@ fetch(`${SCRIPT_URL}?sheet=${selectedDept}`)
 .then(data=>{
 
 students=[];
-let list=document.getElementById("studentList");
-list.innerHTML="";
+let table=`<table>
+<thead>
+<tr>
+<th>Roll</th>
+<th>Name</th>
+<th>Present</th>
+</tr>
+</thead><tbody>`;
 
 for(let i=1;i<data.length;i++){
 students.push({roll:data[i][0],name:data[i][1]});
-list.innerHTML+=`
-<div class="student">
-<label>
-<input type="checkbox">
-${data[i][0]} - ${data[i][1]}
-</label>
-</div>`;
+table+=`<tr>
+<td>${data[i][0]}</td>
+<td>${data[i][1]}</td>
+<td><input type="checkbox"></td>
+</tr>`;
 }
 
+table+="</tbody></table>";
+
+document.getElementById("studentList").innerHTML=table;
 hideLoader();
 });
-
 });
+
+function getSheetName(dept){
+if(dept==="CS_4") return "CS4_Attendance";
+if(dept==="CS_6") return "CS6_Attendance";
+if(dept==="GEO_4") return "GEO4_Attendance";
+if(dept==="GEO_6") return "GEO6_Attendance";
+}
 
 function saveAttendance(){
 
@@ -202,8 +223,8 @@ return;
 showLoader();
 
 let today=new Date().toLocaleDateString();
-let checkboxes=document.querySelectorAll(".student input");
-let sheetName=selectedDept==="ComputerScience"?"CS_Attendance":"Geo_Attendance";
+let checkboxes=document.querySelectorAll("tbody input");
+let sheetName=getSheetName(selectedDept);
 let records=[];
 
 checkboxes.forEach((box,index)=>{
@@ -213,9 +234,13 @@ records.push([today,students[index].roll,students[index].name,status]);
 
 fetch(SCRIPT_URL,{
 method:"POST",
-body:JSON.stringify({sheet:sheetName,records:records})
+body:JSON.stringify({
+action:"saveAttendance",
+sheet:sheetName,
+records:records
 })
-.then(res=>res.text())
+})
+.then(res=>res.json())
 .then(()=>{
 hideLoader();
 alert("Attendance Saved Successfully!");
@@ -231,13 +256,13 @@ return;
 
 showLoader();
 
-let sheetName=selectedDept==="ComputerScience"?"CS_Attendance":"Geo_Attendance";
+let sheetName=getSheetName(selectedDept);
 
 fetch(`${SCRIPT_URL}?sheet=${sheetName}`)
 .then(res=>res.json())
 .then(data=>{
 
-let table="<table><tr><th>Date</th><th>Roll</th><th>Name</th><th>Status</th></tr>";
+let table="<table><thead><tr><th>Date</th><th>Roll</th><th>Name</th><th>Status</th></tr></thead><tbody>";
 
 for(let i=1;i<data.length;i++){
 table+=`<tr>
@@ -248,14 +273,11 @@ table+=`<tr>
 </tr>`;
 }
 
-table+="</table>";
+table+="</tbody></table>";
 
 document.getElementById("databaseView").innerHTML=table;
-
 hideLoader();
-
 });
-
 }
 
 </script>
