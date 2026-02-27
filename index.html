@@ -2,16 +2,11 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Attendance System Login</title>
+<title>Attendance System</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
+*{margin:0;padding:0;box-sizing:border-box;}
 
 body{
 font-family:'Poppins',sans-serif;
@@ -23,7 +18,7 @@ min-height:100vh;
 padding:20px;
 }
 
-.container{
+.wrapper{
 width:100%;
 max-width:400px;
 }
@@ -50,37 +45,13 @@ border-radius:20px;
 box-shadow:0 15px 35px rgba(0,0,0,0.3);
 }
 
-/* Login As Animated */
-.login-as{
+.login-box h3{
 text-align:center;
-font-size:15px;
-font-weight:600;
+margin-bottom:20px;
 color:#444;
-margin-bottom:15px;
-position:relative;
-display:inline-block;
-left:50%;
-transform:translateX(-50%);
-cursor:pointer;
+font-weight:600;
 }
 
-.login-as::after{
-content:'';
-position:absolute;
-width:0%;
-height:3px;
-left:0;
-bottom:-5px;
-background:#4e73df;
-transition:0.4s ease;
-border-radius:10px;
-}
-
-.login-as:hover::after{
-width:100%;
-}
-
-/* Role Buttons */
 .role-buttons{
 display:flex;
 gap:10px;
@@ -94,35 +65,21 @@ border-radius:12px;
 border:none;
 font-weight:600;
 cursor:pointer;
+color:white;
 transition:0.3s;
 }
 
-.admin-btn{
-background:#4e73df;
-color:white;
-}
+.admin-btn{background:#4e73df;}
+.student-btn{background:#1cc88a;}
 
-.student-btn{
-background:#1cc88a;
-color:white;
-}
+.admin-btn:hover{background:#2e59d9;}
+.student-btn:hover{background:#17a673;}
 
-.role-buttons button:hover{
-transform:translateY(-2px);
-box-shadow:0 5px 15px rgba(0,0,0,0.2);
-}
-
-.role-buttons button:active{
-transform:scale(0.95);
-}
-
-/* Inputs */
 input{
 width:100%;
 padding:12px;
 border-radius:12px;
 border:1px solid #ddd;
-font-size:14px;
 margin-bottom:15px;
 }
 
@@ -133,11 +90,12 @@ position:relative;
 
 .password-wrapper input{
 padding-right:60px;
+margin-bottom:0;
 }
 
 .toggle-btn{
 position:absolute;
-right:15px;
+right:10px;
 top:50%;
 transform:translateY(-50%);
 background:none;
@@ -149,26 +107,25 @@ font-size:13px;
 }
 
 /* Remember */
-.options{
+.remember{
 display:flex;
 align-items:center;
-margin:12px 0 20px 0;
-}
-
-.options label{
-display:inline-flex;
-align-items:center;
 gap:8px;
-white-space:nowrap;
-cursor:pointer;
+margin:15px 0;
 font-size:14px;
+cursor:pointer;
 }
 
-.options input[type="checkbox"]{
+.remember input{
 width:16px;
 height:16px;
 margin:0;
 cursor:pointer;
+}
+
+.remember label{
+cursor:pointer;
+user-select:none;
 }
 
 .login-btn{
@@ -182,39 +139,26 @@ font-weight:600;
 cursor:pointer;
 }
 
-.login-btn:hover{
-background:#2e59d9;
-}
+.login-btn:hover{background:#2e59d9;}
 
-.hidden{
-display:none;
-}
-
-@media(max-width:480px){
-.title-box h1{
-font-size:20px;
-}
-}
+.hidden{display:none;}
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="wrapper">
 
 <div class="title-box">
-<h1>Attendance System 🙋🏻‍♂️</h1>
+<h1>Attendance System 📘</h1>
 </div>
 
 <div class="login-box">
 
-<!-- Login As Top -->
-<div class="login-as">
-Login As
-</div>
+<h3>Login As</h3>
 
 <div class="role-buttons">
-<button class="admin-btn" onclick="showAdmin()">Admin 👨🏻‍💻</button>
+<button class="admin-btn" onclick="showAdmin()">Admin 👨🏻‍💼</button>
 <button class="student-btn" onclick="goStudent()">Student 🎓</button>
 </div>
 
@@ -227,11 +171,9 @@ Login As
 <button type="button" class="toggle-btn" onclick="togglePassword()">Show</button>
 </div>
 
-<div class="options">
-<label for="remember">
+<div class="remember">
 <input type="checkbox" id="remember">
-Remember Me
-</label>
+<label for="remember">Remember Me</label>
 </div>
 
 <button class="login-btn" onclick="adminLogin()">Login</button>
@@ -244,6 +186,8 @@ Remember Me
 
 <script>
 
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyLZWOug-UBtNm9hRbPDNT7UJtYtETAF4Vq7iPV_Wnmc38D_Wyyxpy4rq-0a37T3i7pVQ/exec";
+
 function showAdmin(){
 document.getElementById("adminSection").classList.remove("hidden");
 }
@@ -252,6 +196,7 @@ function goStudent(){
 window.location.href="student.html";
 }
 
+/* 🔥 Show / Hide Password */
 function togglePassword(){
 let pass=document.getElementById("password");
 let btn=document.querySelector(".toggle-btn");
@@ -271,7 +216,18 @@ let user=document.getElementById("username").value;
 let pass=document.getElementById("password").value;
 let remember=document.getElementById("remember").checked;
 
-if(user==="Economics" && pass==="Eco@2026"){
+fetch(SCRIPT_URL,{
+method:"POST",
+body:JSON.stringify({
+action:"login",
+username:user,
+password:pass
+})
+})
+.then(res=>res.json())
+.then(data=>{
+
+if(data.status==="success"){
 
 if(remember){
 localStorage.setItem("savedUser",user);
@@ -281,11 +237,14 @@ localStorage.removeItem("savedUser");
 localStorage.removeItem("savedPass");
 }
 
+sessionStorage.setItem("adminLoggedIn","true");
 window.location.href="admin.html";
 
 }else{
-alert("Invalid Username or Password");
+alert("Invalid Username or Password ❌");
 }
+
+});
 }
 
 window.onload=function(){
