@@ -55,7 +55,7 @@ text-align:center;
 margin-bottom:20px;
 }
 
-/* Role Buttons */
+/* Buttons */
 .role-buttons{
 display:flex;
 gap:10px;
@@ -81,7 +81,7 @@ padding:12px;
 border-radius:12px;
 border:1px solid #ddd;
 margin-bottom:15px;
-font-size:16px; /* mobile zoom fix */
+font-size:16px; /* 🔥 important for mobile zoom fix */
 }
 
 /* Password */
@@ -136,7 +136,7 @@ font-size:16px;
 
 .hidden{display:none;}
 
-/* Full Screen Loader */
+/* 🔥 FULL SCREEN LOADER (Mobile Safe) */
 .full-loader{
 position:fixed;
 top:0;
@@ -169,6 +169,12 @@ color:#4e73df;
 @keyframes spin{
 0%{transform:rotate(0deg);}
 100%{transform:rotate(360deg);}
+}
+
+@media(max-width:480px){
+.wrapper{
+width:100%;
+}
 }
 </style>
 </head>
@@ -219,21 +225,16 @@ color:#4e73df;
 
 <script>
 
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyLZWOug-UBtNm9hRbPDNT7UJtYtETAF4Vq7iPV_Wnmc38D_Wyyxpy4rq-0a37T3i7pVQ/exec";
+const SCRIPT_URL="YOUR_GOOGLE_SCRIPT_URL";
 
-
-
-/* Show Admin Section */
 function showAdmin(){
 document.getElementById("adminSection").classList.remove("hidden");
 }
 
-/* Student Redirect */
 function goStudent(){
 window.location.href="student.html";
 }
 
-/* Show / Hide Password */
 function togglePassword(){
 let pass=document.getElementById("password");
 let btn=document.querySelector(".toggle-btn");
@@ -247,7 +248,6 @@ btn.innerText="Show";
 }
 }
 
-/* 🔥 Mobile Safe Login */
 function adminLogin(){
 
 let loader=document.getElementById("loader");
@@ -255,19 +255,14 @@ loader.style.display="flex";
 
 fetch(SCRIPT_URL,{
 method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
 body:JSON.stringify({
 action:"login",
 username:document.getElementById("username").value,
 password:document.getElementById("password").value
 })
 })
-.then(res=>res.text())   // 🔥 Mobile safe
-.then(text=>{
-
-let data = JSON.parse(text);
+.then(res=>res.json())
+.then(data=>{
 
 if(data.status==="success"){
 sessionStorage.setItem("adminLoggedIn","true");
@@ -282,7 +277,6 @@ alert("Invalid Username or Password ❌");
 loader.style.display="none";
 alert("Connection Error ⚠");
 });
-
 }
 
 </script>
