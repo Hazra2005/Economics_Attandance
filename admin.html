@@ -23,7 +23,6 @@ width:100%;
 max-width:400px;
 }
 
-/* Title Box */
 .title-box{
 background:white;
 padding:20px;
@@ -38,7 +37,6 @@ font-size:22px;
 color:#4e73df;
 }
 
-/* Login Box */
 .login-box{
 background:white;
 padding:25px;
@@ -52,7 +50,6 @@ margin-bottom:20px;
 color:#444;
 }
 
-/* Role Buttons */
 .role-buttons{
 display:flex;
 gap:10px;
@@ -83,7 +80,6 @@ border:1px solid #ddd;
 margin-bottom:15px;
 }
 
-/* Password */
 .password-wrapper{
 position:relative;
 }
@@ -105,7 +101,6 @@ font-weight:600;
 cursor:pointer;
 }
 
-/* Remember Me */
 .remember{
 display:flex;
 align-items:center;
@@ -119,17 +114,9 @@ font-size:14px;
 width:16px;
 height:16px;
 margin:0;
-flex-shrink:0;
 cursor:pointer;
 }
 
-.remember label{
-margin:0;
-cursor:pointer;
-user-select:none;
-}
-
-/* Login Button */
 .login-btn{
 width:100%;
 padding:12px;
@@ -141,11 +128,17 @@ font-weight:600;
 cursor:pointer;
 }
 
+#errorMsg{
+color:red;
+font-size:14px;
+margin-top:10px;
+text-align:center;
+min-height:18px;
+}
+
 .hidden{display:none;}
 
-/* ========================= */
 /* Mobile Friendly Loader */
-/* ========================= */
 
 .full-loader{
 position:fixed;
@@ -159,8 +152,6 @@ justify-content:center;
 align-items:center;
 flex-direction:column;
 z-index:9999;
-padding:20px;
-text-align:center;
 }
 
 .spinner{
@@ -182,25 +173,18 @@ font-size:4vw;
 }
 
 @media(min-width:600px){
-.loading-text{
-font-size:18px;
-}
+.loading-text{font-size:18px;}
 }
 
 @keyframes spin{
 0%{transform:rotate(0deg);}
 100%{transform:rotate(360deg);}
 }
-
-@media(max-width:480px){
-.title-box h1{font-size:20px;}
-}
 </style>
 </head>
 
 <body>
 
-<!-- Full Screen Loader -->
 <div class="full-loader" id="loader">
 <div class="spinner"></div>
 <div class="loading-text">Logging in...</div>
@@ -237,8 +221,9 @@ font-size:18px;
 
 <button class="login-btn" onclick="adminLogin()">Login</button>
 
-</div>
+<div id="errorMsg"></div>
 
+</div>
 </div>
 </div>
 
@@ -273,7 +258,9 @@ let user=document.getElementById("username").value;
 let pass=document.getElementById("password").value;
 let remember=document.getElementById("remember").checked;
 let loader=document.getElementById("loader");
+let errorMsg=document.getElementById("errorMsg");
 
+errorMsg.innerText="";
 loader.style.display="flex";
 
 fetch(SCRIPT_URL,{
@@ -284,8 +271,10 @@ username:user,
 password:pass
 })
 })
-.then(res=>res.json())
-.then(data=>{
+.then(res=>res.text())
+.then(text=>{
+
+let data=JSON.parse(text);
 
 if(data.status==="success"){
 
@@ -298,17 +287,22 @@ localStorage.removeItem("savedPass");
 }
 
 sessionStorage.setItem("adminLoggedIn","true");
-window.location.href="admin.html";
+
+loader.style.display="none";
+
+setTimeout(function(){
+window.location.replace("admin.html");
+},300);
 
 }else{
 loader.style.display="none";
-alert("Invalid Username or Password ❌");
+errorMsg.innerText="Invalid Username or Password ❌";
 }
 
 })
 .catch(()=>{
 loader.style.display="none";
-alert("Connection Error ⚠");
+errorMsg.innerText="Connection Error ⚠";
 });
 }
 
