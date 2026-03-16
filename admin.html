@@ -30,12 +30,13 @@ position:relative;
 
 h2{text-align:center;margin-bottom:15px;}
 
-select,button{
+select,input[type="date"],button{
 width:100%;
 padding:12px;
 margin-bottom:12px;
 border-radius:10px;
 border:1px solid #ddd;
+font-family:'Poppins',sans-serif;
 }
 
 button{
@@ -111,6 +112,13 @@ border-radius:50%;
 animation:spin 1s linear infinite;
 }
 
+.label{
+display:block;
+margin-bottom:8px;
+font-weight:600;
+color:#333;
+}
+
 @keyframes spin{
 0%{transform:rotate(0deg);}
 100%{transform:rotate(360deg);}
@@ -128,7 +136,6 @@ window.location.href="index.html";
 </script>
 
 <div class="container">
-
 <div class="loader" id="loader">
 <div class="spinner"></div>
 </div>
@@ -143,6 +150,9 @@ window.location.href="index.html";
 <option value="GEO_6">Geography - 6th Sem</option>
 </select>
 
+<label class="label" for="attendanceDate">Select Attendance Date 📅</label>
+<input type="date" id="attendanceDate">
+
 <div id="studentList"></div>
 
 <button onclick="saveAttendance()">Submit Attendance ✔</button>
@@ -151,18 +161,23 @@ window.location.href="index.html";
 <div id="databaseView"></div>
 
 <button class="logout-btn" onclick="logout()">Logout ❎</button>
-
 </div>
 
 <script>
-
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyLZWOug-UBtNm9hRbPDNT7UJtYtETAF4Vq7iPV_Wnmc38D_Wyyxpy4rq-0a37T3i7pVQ/exec";
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbwAbtWesyhZ35om5WEX8ewTkge60-WC4j-l0ZJZzhT6veT00w7ySMUKEfuJnqtHd7n9tg/exec";
 
 let students=[];
 let selectedDept="";
 
-function showLoader(){document.getElementById("loader").style.display="flex";}
-function hideLoader(){document.getElementById("loader").style.display="none";}
+document.getElementById("attendanceDate").value=new Date().toISOString().split("T")[0];
+
+function showLoader(){
+document.getElementById("loader").style.display="flex";
+}
+
+function hideLoader(){
+document.getElementById("loader").style.display="none";
+}
 
 function logout(){
 sessionStorage.removeItem("adminLoggedIn");
@@ -170,17 +185,40 @@ window.location.href="index.html";
 }
 
 document.getElementById("department").addEventListener("change",function(){
-
 selectedDept=this.value;
+students=[];
+document.getElementById("studentList").innerHTML="";
+document.getElementById("databaseView").innerHTML="";
+
 if(selectedDept==="") return;
 
 showLoader();
 
-fetch(`${SCRIPT_URL}?sheet=${selectedDept}`)
-.then(res=>res.json())
-.then(data=>{
+fetch(SCRIPT_URL+"?sheet="+encodeURIComponent(selectedDept))
+.then(res=>res.text())
+.then(text=>{
+hideLoader();
 
-students=[];
+let data;
+try{
+data=JSON.parse(text);
+}catch(error){
+alert("Invalid response from server");
+console.error(text);
+return;
+}
+
+if(!Array.isArray(data)){
+alert(data.message || "Failed to fetch student list");
+console.error(data);
+return;
+}
+
+if(data.length<=1){
+document.getElementById("studentList").innerHTML="<p style='text-align:center;margin-top:15px;'>No students found</p>";
+return;
+}
+
 let table=`<table>
 <thead>
 <tr>
@@ -188,21 +226,25 @@ let table=`<table>
 <th>Name</th>
 <th>Present</th>
 </tr>
-</thead><tbody>`;
+</thead>
+<tbody>`;
 
 for(let i=1;i<data.length;i++){
 students.push({roll:data[i][0],name:data[i][1]});
 table+=`<tr>
-<td>${data[i][0]}</td>
-<td>${data[i][1]}</td>
+<td>${data[i][0] || ""}</td>
+<td>${data[i][1] || ""}</td>
 <td><input type="checkbox"></td>
 </tr>`;
 }
 
 table+="</tbody></table>";
-
 document.getElementById("studentList").innerHTML=table;
+})
+.catch(error=>{
 hideLoader();
+alert("Failed to fetch student list");
+console.error(error);
 });
 });
 
@@ -211,75 +253,131 @@ if(dept==="CS_4") return "CS4_Attendance";
 if(dept==="CS_6") return "CS6_Attendance";
 if(dept==="GEO_4") return "GEO4_Attendance";
 if(dept==="GEO_6") return "GEO6_Attendance";
+return "";
 }
 
 function saveAttendance(){
-
 if(selectedDept===""){
 alert("Select department first");
 return;
 }
 
-showLoader();
+let selectedDate=document.getElementById("attendanceDate").value;
+if(selectedDate===""){
+alert("Please select attendance date");
+return;
+}
 
-let today=new Date().toLocaleDateString();
-let checkboxes=document.querySelectorAll("tbody input");
+let checkboxes=document.querySelectorAll("#studentList tbody input");
+if(checkboxes.length===0){
+alert("No student list found");
+return;
+}
+
 let sheetName=getSheetName(selectedDept);
-let records=[];
+if(sheetName===""){
+alert("Invalid department");
+return;
+}
 
+let records=[];
 checkboxes.forEach((box,index)=>{
 let status=box.checked?"Present":"Absent";
-records.push([today,students[index].roll,students[index].name,status]);
+records.push([selectedDate,students[index].roll,students[index].name,status]);
 });
+
+showLoader();
+
+const formBody=new URLSearchParams();
+formBody.append("action","saveAttendance");
+formBody.append("sheet",sheetName);
+formBody.append("records",JSON.stringify(records));
 
 fetch(SCRIPT_URL,{
 method:"POST",
-body:JSON.stringify({
-action:"saveAttendance",
-sheet:sheetName,
-records:records
+body:formBody
 })
-})
-.then(res=>res.json())
-.then(()=>{
+.then(res=>res.text())
+.then(text=>{
 hideLoader();
+
+let data;
+try{
+data=JSON.parse(text);
+}catch(error){
+alert("Invalid response while saving attendance");
+console.error(text);
+return;
+}
+
+if(data.status==="success"){
 alert("Attendance Saved Successfully!");
+}else{
+alert(data.message || "Failed to save attendance");
+console.error(data);
+}
+})
+.catch(error=>{
+hideLoader();
+alert("Failed to save attendance");
+console.error(error);
 });
 }
 
 function viewDatabase(){
-
 if(selectedDept===""){
 alert("Select department first");
 return;
 }
 
+let sheetName=getSheetName(selectedDept);
+if(sheetName===""){
+alert("Invalid department");
+return;
+}
+
 showLoader();
 
-let sheetName=getSheetName(selectedDept);
+fetch(SCRIPT_URL+"?sheet="+encodeURIComponent(sheetName))
+.then(res=>res.text())
+.then(text=>{
+hideLoader();
 
-fetch(`${SCRIPT_URL}?sheet=${sheetName}`)
-.then(res=>res.json())
-.then(data=>{
+let data;
+try{
+data=JSON.parse(text);
+}catch(error){
+alert("Invalid response while loading database");
+console.error(text);
+return;
+}
+
+if(!Array.isArray(data)){
+alert(data.message || "Failed to load attendance database");
+console.error(data);
+return;
+}
 
 let table="<table><thead><tr><th>Date</th><th>Roll</th><th>Name</th><th>Status</th></tr></thead><tbody>";
 
 for(let i=1;i<data.length;i++){
 table+=`<tr>
-<td>${data[i][0]}</td>
-<td>${data[i][1]}</td>
-<td>${data[i][2]}</td>
-<td>${data[i][3]}</td>
+<td>${data[i][0] || ""}</td>
+<td>${data[i][1] || ""}</td>
+<td>${data[i][2] || ""}</td>
+<td>${data[i][3] || ""}</td>
 </tr>`;
 }
 
 table+="</tbody></table>";
-
 document.getElementById("databaseView").innerHTML=table;
+})
+.catch(error=>{
 hideLoader();
+alert("Failed to load attendance database");
+console.error(error);
 });
 }
-
 </script>
 
 </body>
